@@ -25,7 +25,7 @@ public partial class MainWindow: Gtk.Window
 
 		String cadena = this.rTxtBNInfija.Text;
 		if (cadena != "")
-			cadena = re.normaliza (cadena);
+			cadena = re.Normaliza (cadena);
 		else {
 			MessageDialog md = new MessageDialog (null, DialogFlags.Modal, MessageType.Info, ButtonsType.Ok, "Error");
 			md.Run ();
@@ -42,7 +42,7 @@ public partial class MainWindow: Gtk.Window
 			this.rTxtBPInversa.Text = "ERROR";
 		else
 		{
-			this.rTxtBPInversa.Text = re.polacaInv(cadena) + "#.";//Realiza las operaciones de Notacion Polaca Inversa
+			this.rTxtBPInversa.Text = RegularExpression.PolacaInv(cadena) + "#.";//Realiza las operaciones de Notacion Polaca Inversa
 			//this.btnArbol.Enabled = true;
 		}
 	}
@@ -51,7 +51,9 @@ public partial class MainWindow: Gtk.Window
 	{
 		try
 		{
-			var arbol = AFD.GeneraArbol(this.rTxtBPInversa.Text);
+			var afd = new AFD(rTxtBPInversa.Text);
+			var arbol = afd.Arbol;
+
 		}
 		catch (Exception)
 		{
