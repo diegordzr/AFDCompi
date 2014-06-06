@@ -42,9 +42,7 @@ public partial class MainWindow: Gtk.Window
 			this.rTxtBPInversa.Text = "ERROR";
 		else
 		{
-			                      
-
-			this.rTxtBPInversa.Text = re.polacaInv(cadena);//Realiza las operaciones de Notacion Polaca Inversa
+			this.rTxtBPInversa.Text = re.polacaInv(cadena) + "#.";//Realiza las operaciones de Notacion Polaca Inversa
 			//this.btnArbol.Enabled = true;
 		}
 	}
