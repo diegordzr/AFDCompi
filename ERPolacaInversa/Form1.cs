@@ -16,35 +16,32 @@ namespace ERPolacaInversa
 		{
 			InitializeComponent();
 		}
+		
+        private void btnConvertir_Click(object sender, EventArgs e)
+        {
+            var re = new RegularExpression();
+            var cadena = rTxtBNInfija.Text;
+            if (cadena != string.Empty)
+                cadena = re.Normaliza(cadena);
+            else
+                MessageBox.Show("Introduce Cadena Valida", "Compiladores e Interpretes A", MessageBoxButtons.OK);
 
-		private void BtnConvertirClick(object sender, EventArgs e)
-		{
-			var re = new RegularExpression();
-			var cadena = rTxtBNInfija.Text;
-			if (cadena != string.Empty)
-				cadena = re.Normaliza(cadena);
-			else
-				MessageBox.Show(Resources.Msg_Introduce_Cadena_Valida, Resources.Msg_Compiladores_e_Interpretes_A, MessageBoxButtons.OK);
+            rTxtBNormalizada.Text = cadena + ".#" ;
+            rTxtBPInversa.Text = rTxtBNormalizada.Text == "ERROR" ? "ERROR" : RegularExpression.PolacaInv(cadena) + "#.";
+            this.btnArbol.Enabled = true;
+        }
 
-			rTxtBNormalizada.Text = cadena;
-			rTxtBPInversa.Text = rTxtBNormalizada.Text == Resources.Msg_ERROR ? Resources.Msg_ERROR : RegularExpression.PolacaInv(cadena);
-
-			var rpn = Rpn.PolacaInversa(cadena);
-
-
-		}
-
-		private void BtnArbolClick(object sender, EventArgs e)
-		{
-			try
-			{
-				var arbol = AFD.GeneraArbol(this.rTxtBPInversa.Text);
-			}
-			catch (Exception)
-			{
-				MessageBox.Show(Resources.Msg_ErrorToGenerateArbol);   
-			}
-		}
+        private void btnArbol_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var arbol = AFD.GeneraArbol(this.rTxtBPInversa.Text);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Error al generar arbol");
+            }
+        }
 
 	}
 }

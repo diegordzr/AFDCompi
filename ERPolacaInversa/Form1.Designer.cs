@@ -75,7 +75,6 @@
             this.lblNInfija.Size = new System.Drawing.Size(154, 18);
             this.lblNInfija.TabIndex = 1;
             this.lblNInfija.Text = "ER. Notacion Infija:";
-            this.lblNInfija.Click += new System.EventHandler(this.lblNInfija_Click);
             // 
             // lblNormailizada
             // 
@@ -128,7 +127,6 @@
             this.btnAbrir.Text = "Abir";
             this.btnAbrir.UseVisualStyleBackColor = false;
             this.btnAbrir.Visible = false;
-            this.btnAbrir.Click += new System.EventHandler(this.btnAbrir_Click);
             // 
             // btnGuardar
             // 
@@ -141,7 +139,6 @@
             this.btnGuardar.Text = "Guardar";
             this.btnGuardar.UseVisualStyleBackColor = false;
             this.btnGuardar.Visible = false;
-            this.btnGuardar.Click += new System.EventHandler(this.btnGuardar_Click);
             // 
             // btnConvertir
             // 
@@ -170,7 +167,6 @@
             this.btnCargaP.Text = "Carga Archivos de Pruebas";
             this.btnCargaP.UseVisualStyleBackColor = false;
             this.btnCargaP.Visible = false;
-            this.btnCargaP.Click += new System.EventHandler(this.btnCargaP_Click);
             // 
             // btnEjecutarP
             // 
@@ -183,7 +179,6 @@
             this.btnEjecutarP.Text = "Ejecutar Pruebas";
             this.btnEjecutarP.UseVisualStyleBackColor = false;
             this.btnEjecutarP.Visible = false;
-            this.btnEjecutarP.Click += new System.EventHandler(this.btnEjecutarP_Click);
             // 
             // dtGVPruebas
             // 
@@ -275,7 +270,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.GradientInactiveCaption;
-            this.ClientSize = new System.Drawing.Size(1805, 717);
+            this.ClientSize = new System.Drawing.Size(1284, 717);
             this.Controls.Add(this.Aceptacionesgb);
             this.Controls.Add(this.btnArbol);
             this.Controls.Add(this.ArbolGB);
@@ -293,7 +288,6 @@
             this.Controls.Add(this.rTxtBNInfija);
             this.Name = "Form1";
             this.Text = "ER Polaca Inversa";
-            this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.dtGVPruebas)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ArbolGB.ResumeLayout(false);
