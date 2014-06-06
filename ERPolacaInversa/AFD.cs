@@ -11,42 +11,62 @@ namespace ERPolacaInversa
         private readonly Nodo _arbol;
         private readonly List<Nodo> _nodos = new List<Nodo>();
 
+		/// <summary>
+		/// obtiene el arbol AFD
+		/// </summary>
+		/// <value>The arbol.</value>
         public Nodo Arbol
         {
             get { return _arbol; }
         }
 
+		/// <summary>
+		/// Inicializa AFD a partir de una expresion regular
+		/// </summary>
+		/// <param name="expresionRegular">Expresion regular.</param>
         public AFD(string expresionRegular)
         {
             _arbol = GeneraArbol(expresionRegular);
-            EsNuleable(_arbol);
-            GeneraPrimeraPos(_arbol);
-            GeneraUltimaPos(_arbol);
+			Inicializa(_arbol);
             GeneraSiguientePos();
         }
 
-        public void EsNuleable(Nodo nodo)
+		/// <summary>
+		/// Inicializa el arbol con Nulleables, Primera y Ultima Pos
+		/// </summary>
+		/// <param name="nodo">Nodo cabeza del arbol</param>
+		private void Inicializa(Nodo nodo)
         {
             if(nodo == null)
                 return;
-            EsNuleable(nodo.Izquierdo);
-            EsNuleable(nodo.Derecho);
-            _nodos.Add(nodo);
-            if (EsUnario(nodo.Id) && (nodo.Id != '+') ||
-                (nodo.Id == '.' && ((nodo.Izquierdo.EsAnulable && nodo.Derecho.EsAnulable))) ||
-                (nodo.Id == '|' && (nodo.Izquierdo.EsAnulable || nodo.Derecho.EsAnulable)))
-            {
-                nodo.EsAnulable = true;
-            }
+			Inicializa(nodo.Izquierdo);
+			Inicializa(nodo.Derecho);
+            
+			_nodos.Add(nodo);
+			EsNulleable (nodo);
+			GeneraPrimeraPos (nodo);
+			GeneraUltimaPos (nodo);
         }
 
-        public void GeneraPrimeraPos(Nodo nodo)
-        {
-            if (nodo == null)
-                return;
-            GeneraPrimeraPos(nodo.Izquierdo);
-            GeneraPrimeraPos(nodo.Derecho);
+		/// <summary>
+		/// Establece si es nulleable un arbol
+		/// </summary>
+		/// <param name="nodo">Nodo.</param>
+		private void EsNulleable(Nodo nodo){
+			if (EsUnario(nodo.Id) && (nodo.Id != '+') ||
+				(nodo.Id == '.' && ((nodo.Izquierdo.EsAnulable && nodo.Derecho.EsAnulable))) ||
+				(nodo.Id == '|' && (nodo.Izquierdo.EsAnulable || nodo.Derecho.EsAnulable)))
+			{
+				nodo.EsAnulable = true;
+			}
+		}
 
+		/// <summary>
+		/// Genera el calculo de Primera Pos
+		/// </summary>
+		/// <param name="nodo">Nodo cabeza del arbol</param>
+		private void GeneraPrimeraPos(Nodo nodo)
+        {
             if (nodo.GetType() == typeof (Hoja))
             {
                 var hoja = (Hoja) nodo;
@@ -64,13 +84,12 @@ namespace ERPolacaInversa
             }
         }
 
-        public void GeneraUltimaPos(Nodo nodo)
+		/// <summary>
+		/// Genera UltimaPos
+		/// </summary>
+		/// <param name="nodo">Nodo cabeza</param>
+		private void GeneraUltimaPos(Nodo nodo)
         {
-            if (nodo == null)
-                return;
-            GeneraUltimaPos(nodo.Izquierdo);
-            GeneraUltimaPos(nodo.Derecho);
-
             if (nodo.GetType() == typeof(Hoja))
             {
                 var hoja = (Hoja)nodo;
@@ -97,7 +116,10 @@ namespace ERPolacaInversa
             }
         }
 
-        public void GeneraSiguientePos()
+		/// <summary>
+		/// Genera siguiente pos y almacena el resultado en las hojas del arbol
+		/// </summary>
+		private void GeneraSiguientePos()
         {
             var nodosPunto = (from n in _nodos where n.Id == '.' select n).ToArray();
             var nodosOtros = (from n in _nodos where (n.Id == '+' || n.Id == '*') select n).ToArray();
@@ -120,7 +142,12 @@ namespace ERPolacaInversa
             }
         }
 
-        public Nodo GeneraArbol(string expresionRegular)
+		/// <summary>
+		/// Genera un arbol con una expresion regular
+		/// </summary>
+		/// <returns>El arbol.</returns>
+		/// <param name="expresionRegular">Expresion regular polaca inversa</param>
+		private Nodo GeneraArbol(string expresionRegular)
         {
             int number = 1;
             var pila = new Stack<Nodo>();
@@ -142,12 +169,17 @@ namespace ERPolacaInversa
                 {
                     pila.Push(new Hoja { Id = c, Numero = number++, SigPos = new int[]{} });
                 }
-            }            
-
+            }
             return pila.Pop();
         }
 
-        public Nodo Resolver(char operador, Nodo op1, Nodo op2 = null)
+		/// <summary>
+		/// Evalua una expresion
+		/// </summary>
+		/// <param name="operador">Operador.</param>
+		/// <param name="op1">Op1.</param>
+		/// <param name="op2">Op2.</param>
+		private Nodo Resolver(char operador, Nodo op1, Nodo op2 = null)
         {
             Nodo nodoOp;
             if (op2 == null || EsUnario(operador))
@@ -163,7 +195,12 @@ namespace ERPolacaInversa
             return nodoOp;
         }
 
-		public bool EsMetacaracter(char dato)
+		/// <summary>
+		/// Es Metacaracter
+		/// </summary>
+		/// <returns><c>true</c>, Si fue metacaracter, <c>false</c> si no lo es.</returns>
+		/// <param name="dato">Dato.</param>
+		private bool EsMetacaracter(char dato)
 		{
 		    return dato == '*' || 
                 dato == '+' || 
@@ -179,7 +216,12 @@ namespace ERPolacaInversa
                 dato == '#';
 		}
 
-        public bool EsUnario(char operador)
+		/// <summary>
+		/// Es unario.
+		/// </summary>
+		/// <returns><c>true</c>, Si fue unario, <c>false</c> si no lo es.</returns>
+		/// <param name="operador">Operador.</param>
+		private bool EsUnario(char operador)
         {
             return (operador == '+' || operador == '*' || operador == '?') ? true : false; 
         }
