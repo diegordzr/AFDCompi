@@ -35,7 +35,7 @@ namespace ERPolacaInversa
         {
             try
             {
-                var arbol = AFD.GeneraArbol(this.rTxtBPInversa.Text);
+                AFD afd = new AFD(this.rTxtBPInversa.Text);                               
             }
             catch (Exception)
             {

@@ -8,13 +8,124 @@ namespace ERPolacaInversa
 {
     public class AFD
     {
-        public static Nodo GeneraArbol(string expresionRegular)
+        private readonly Nodo _arbol;
+        private readonly List<Nodo> _nodos = new List<Nodo>();
+
+        public Nodo Arbol
+        {
+            get { return _arbol; }
+        }
+
+        public AFD(string expresionRegular)
+        {
+            _arbol = GeneraArbol(expresionRegular);
+            EsNuleable(_arbol);
+            GeneraPrimeraPos(_arbol);
+            GeneraUltimaPos(_arbol);
+            GeneraSiguientePos();
+        }
+
+        public void EsNuleable(Nodo nodo)
+        {
+            if(nodo == null)
+                return;
+            EsNuleable(nodo.Izquierdo);
+            EsNuleable(nodo.Derecho);
+            _nodos.Add(nodo);
+            if (EsUnario(nodo.Id) && (nodo.Id != '+') ||
+                (nodo.Id == '.' && ((nodo.Izquierdo.EsAnulable && nodo.Derecho.EsAnulable))) ||
+                (nodo.Id == '|' && (nodo.Izquierdo.EsAnulable || nodo.Derecho.EsAnulable)))
+            {
+                nodo.EsAnulable = true;
+            }
+        }
+
+        public void GeneraPrimeraPos(Nodo nodo)
+        {
+            if (nodo == null)
+                return;
+            GeneraPrimeraPos(nodo.Izquierdo);
+            GeneraPrimeraPos(nodo.Derecho);
+
+            if (nodo.GetType() == typeof (Hoja))
+            {
+                var hoja = (Hoja) nodo;
+                nodo.PrimeraPos = new[] { hoja.Numero };
+            }
+            if (EsUnario(nodo.Id) || 
+                (nodo.Id == '.' && !nodo.Izquierdo.EsAnulable))
+            {
+                nodo.PrimeraPos = nodo.Izquierdo.PrimeraPos;
+            }
+            if (nodo.Id == '|' ||
+                (nodo.Id == '.' && nodo.Izquierdo.EsAnulable))
+            {
+                nodo.PrimeraPos = nodo.Izquierdo.PrimeraPos.Union(nodo.Derecho.PrimeraPos).ToArray();
+            }
+        }
+
+        public void GeneraUltimaPos(Nodo nodo)
+        {
+            if (nodo == null)
+                return;
+            GeneraUltimaPos(nodo.Izquierdo);
+            GeneraUltimaPos(nodo.Derecho);
+
+            if (nodo.GetType() == typeof(Hoja))
+            {
+                var hoja = (Hoja)nodo;
+                nodo.UltimaPos = new[] { hoja.Numero };
+            }
+            if (EsUnario(nodo.Id))                 
+            {
+                nodo.UltimaPos = nodo.Izquierdo.UltimaPos;
+            }
+            if (nodo.Id == '|')                
+            {
+                nodo.UltimaPos = nodo.Izquierdo.UltimaPos.Union(nodo.Derecho.UltimaPos).ToArray();
+            }
+            if (nodo.Id == '.')
+            {
+                if (nodo.Derecho.EsAnulable)
+                {
+                    nodo.UltimaPos = nodo.Izquierdo.UltimaPos.Union(nodo.Derecho.UltimaPos).ToArray();
+                }
+                else
+                {
+                    nodo.UltimaPos = nodo.Derecho.UltimaPos;
+                }
+            }
+        }
+
+        public void GeneraSiguientePos()
+        {
+            var nodosPunto = (from n in _nodos where n.Id == '.' select n).ToArray();
+            var nodosOtros = (from n in _nodos where (n.Id == '+' || n.Id == '*') select n).ToArray();
+            var hojas = (from h in _nodos where h.GetType() == typeof(Hoja) select (Hoja)h).ToArray();
+
+            foreach (var nodo in nodosPunto)
+            {
+                foreach (var i in nodo.Izquierdo.UltimaPos)
+                {
+                    hojas[i - 1].SigPos = hojas[i - 1].SigPos.Union(nodo.Derecho.PrimeraPos).ToArray();
+                } 
+            }
+
+            foreach (var nodo in nodosOtros)
+            {
+                foreach (var i in nodo.PrimeraPos)
+                {
+                    hojas[i - 1].SigPos = hojas[i - 1].SigPos.Union(nodo.Izquierdo.UltimaPos).ToArray();
+                }
+            }
+        }
+
+        public Nodo GeneraArbol(string expresionRegular)
         {
             int number = 1;
             var pila = new Stack<Nodo>();
             
-            foreach(var c in expresionRegular)
-            //Parallel.ForEach(expresionRegular, c =>
+            foreach(var c in expresionRegular)          
             {
                 if (c != '#' && EsMetacaracter(c))
                 {
@@ -29,19 +140,14 @@ namespace ERPolacaInversa
                 }
                 else // operando ó token
                 {
-                    pila.Push(new Hoja { Id = c, Numero = number++ });
+                    pila.Push(new Hoja { Id = c, Numero = number++, SigPos = new int[]{} });
                 }
-            };
-
-            /*var hojas = (from n in pila 
-                         where n.EsAnulable 
-                         select n);*/
-           
+            }            
 
             return pila.Pop();
         }
 
-        public static Nodo Resolver(char operador, Nodo op1, Nodo op2 = null)
+        public Nodo Resolver(char operador, Nodo op1, Nodo op2 = null)
         {
             Nodo nodoOp;
             if (op2 == null || EsUnario(operador))
@@ -57,17 +163,23 @@ namespace ERPolacaInversa
             return nodoOp;
         }
 
-		public static bool EsMetacaracter(char dato)
+		public bool EsMetacaracter(char dato)
 		{
-			bool bandera = false;
-
-			if (dato == '*' || dato == '+' || dato == '?' || dato == '.' || dato == ')' || dato == '(' || dato == '[' || dato == ']' || dato == '-' || dato == '|' || dato == '\\' || dato == '#')
-				bandera = true;
-
-			return bandera;
+		    return dato == '*' || 
+                dato == '+' || 
+                dato == '?' || 
+                dato == '.' || 
+                dato == ')' || 
+                dato == '(' || 
+                dato == '[' || 
+                dato == ']' || 
+                dato == '-' || 
+                dato == '|' || 
+                dato == '\\' || 
+                dato == '#';
 		}
 
-        public static bool EsUnario(char operador)
+        public bool EsUnario(char operador)
         {
             return (operador == '+' || operador == '*' || operador == '?') ? true : false; 
         }
